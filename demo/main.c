@@ -63,6 +63,7 @@ void main(void) {
 
 #ifdef MOCKINGBOARD
 
+        uint32_t write; // 0 for read, 1 for write
         uint32_t addr; // Address 0..0xFF
         uint32_t rs;   // Register select 0..15
         uint32_t data; // Databus
@@ -71,26 +72,30 @@ void main(void) {
         bool rwb;      // True for write, false for read
 
         if (multicore_fifo_rvalid()) {
-            // Data available from other core because 6502 has written to a register.
+            // 6502 has read from or written to a register.
+            write    = multicore_fifo_pop_blocking();
             addr     = multicore_fifo_pop_blocking();
             data     = multicore_fifo_pop_blocking();
             via1_sel = ((addr & 0x80) != 0); // A7 selects VIA1 or VIA2
             via2_sel = !via1_sel;
             rs       = addr & 0x0f;
-            rwb      = true;
+            rwb      = (write == 1);
         } else {
-            // Nothing from other core. Deselect both VIAs.
+            // No reads or writes. Deselect both VIAs.
             via1_sel = via2_sel = false;
         }
 
-        via_clk(via_1, via1_sel,  false, rwb, rs, data);
-        via_clk(via_2, via2_sel, false, rwb, rs, data);
+        via_clk(via_1, via1_sel, rwb, rs, data);
+        via_clk(via_2, via2_sel, rwb, rs, data);
         ay3_clk(ay3_1, via_1);
         ay3_clk(ay3_2, via_2);
 
+        // Enqueue a buffer of samples on Bluetooth every so many iterations
+        // TODO: ...
+
         // Timer to achieve 1.0205 MHz overall
         // TODO:
-
+        
         if (reset) {
             // Reset VIAs and AYs
             reset = false;

@@ -77,11 +77,10 @@ void destroy_via(via_state *h);
 // Called on every clock
 // Param: h    - VIA handle
 //        cs1  - Chip select 1
-//        cs2b - Chip select 2 (active low)
 //        rwb  - Read / notwrite
 //        rs   - Register select (pins RS3..RS0)
 //        data - Data bus
-void via_clk(via_state *h, bool cs1, bool cs2b, bool rwb, uint8_t rs, uint8_t data);
+void via_clk(via_state *h, bool cs1, bool rwb, uint8_t rs, uint8_t data);
 
 
 

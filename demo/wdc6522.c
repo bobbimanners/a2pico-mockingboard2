@@ -36,7 +36,7 @@ void destroy_via(via_state *h) {
   free(h);
 }
 
-void via_clk(via_state *h, bool cs1, bool cs2b, bool rwb, uint8_t rs, uint8_t data) {
+void via_clk(via_state *h, bool cs1, bool rwb, uint8_t rs, uint8_t data) {
   // Decrement timer 1
   if(--h->regs[VIAREG_T1CL] == 0xff) {
     --h->regs[VIAREG_T1CH];
@@ -54,7 +54,7 @@ void via_clk(via_state *h, bool cs1, bool cs2b, bool rwb, uint8_t rs, uint8_t da
     via_timer2_expire(h);
   }
 
-  if (cs1 && !cs2b) {
+  if (cs1) {
     // Chip is selected ...
     if (rwb) {
       via_set_register(h, rs, data);

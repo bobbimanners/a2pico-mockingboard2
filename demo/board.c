@@ -56,6 +56,7 @@ void __time_critical_func(board)(void) {
         uint32_t io   = pico & 0x0F00;  // IOSTRB or IOSEL
         uint32_t strb = pico & 0x0800;  // IOSTRB
         uint32_t read = pico & 0x1000;  // R/W
+        uint32_t data = 0;
 
         if (read) {
             // 6502 read from card. 16 registers are supported.
@@ -68,12 +69,16 @@ void __time_critical_func(board)(void) {
                     // VIA2
                     a2pico_putdata(pio0, registers2[addr & 0x0F]);
                 }
+                sio_hw->fifo_wr = 0; // Means READ
+                sio_hw->fifo_wr = addr;
+                sio_hw->fifo_wr = data;
             }
 
         } else {
             // 6502 write to card. 16 registers are supported.
             uint32_t data = a2pico_getdata(pio0);
             if (!io) { // DEVSEL
+                sio_hw->fifo_wr = 1; // Means WRITE
                 sio_hw->fifo_wr = addr;
                 sio_hw->fifo_wr = data;
             }
