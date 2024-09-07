@@ -1,3 +1,14 @@
+# == DO NEVER EDIT THE NEXT LINES for Raspberry Pi Pico VS Code Extension to work ==
+if(WIN32)
+    set(USERHOME $ENV{USERPROFILE})
+else()
+    set(USERHOME $ENV{HOME})
+endif()
+set(sdkVersion 2.0.0)
+set(toolchainVersion 13_2_Rel1)
+set(picotoolVersion 2.0.0)
+include(${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+# ====================================================================================
 set(PROJECT_NAME demo)
 
 cmake_minimum_required(VERSION 3.12)
@@ -27,6 +38,8 @@ add_custom_command(
 target_sources(${PROJECT_NAME} PRIVATE
         main.c
         board.c
+        wdc6522.c
+        ay-3-8913.c
         incbin.S
         )
 
