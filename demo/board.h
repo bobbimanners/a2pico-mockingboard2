@@ -30,6 +30,9 @@ SOFTWARE.
 extern volatile bool active;
 extern volatile bool reset;
 
+extern volatile uint8_t registers1[16];
+extern volatile uint8_t registers2[16];
+
 void board(void);
 
 #endif

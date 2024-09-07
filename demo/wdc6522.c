@@ -18,12 +18,13 @@ static void via_timer2_expire(via_state *h);
 static void via_interrupt();
 
 
-via_state *create_via() {
+via_state *create_via(uint8_t *r) {
   via_state *h = malloc(sizeof(via_state));
   if (!h) {
     printf("Alloc fail!");
     exit(999);
   }
+  h->regs = r;
   h->port_a = h->port_b = 0;
   h->regs[VIAREG_IER] = 128; // Disable all interrupts
   h->regs[VIAREG_IFR] = 0;   // Clear all interrupt flags

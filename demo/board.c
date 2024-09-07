@@ -32,6 +32,8 @@ extern const __attribute__((aligned(4))) uint8_t firmware[];
 
 volatile bool active;
 volatile bool reset;
+volatile uint8_t registers1[16];
+volatile uint8_t registers2[16];
 
 static void __time_critical_func(handler)(bool asserted) {
     if (asserted) {
@@ -57,17 +59,14 @@ void __time_critical_func(board)(void) {
 
         if (read) {
             // 6502 read from card. 16 registers are supported.
-            // Question ... how the heck is this supposed to work?
+            // Read cached registers (may be slightly delayed)
             if (!io) {  // DEVSEL
-                switch (addr & 0xF) {
-                    case 0x0:
-                        a2pico_putdata(pio0, sio_hw->fifo_rd);
-                        break;
-                    case 0x1:
-                        // SIO_FIFO_ST_VLD_BITS _u(0x00000001)
-                        // SIO_FIFO_ST_RDY_BITS _u(0x00000002)
-                        a2pico_putdata(pio0, sio_hw->fifo_st << 6);
-                        break;
+                if (addr & 0x80 != 0) {
+                    // VIA1
+                    a2pico_putdata(pio0, registers1[addr & 0x0F]);
+                } else {
+                    // VIA2
+                    a2pico_putdata(pio0, registers2[addr & 0x0F]);
                 }
             }
 
