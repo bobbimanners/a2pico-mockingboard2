@@ -30,9 +30,20 @@ SOFTWARE.
 
 #include <a2pico.h>
 
+#include "ay-3-8913.h"
+#include "wdc6522.h"
+
+#define MOCKINGBOARD
+
 #include "board.h"
 
 void main(void) {
+
+    via_state *via_1 = create_via();
+    via_state *via_2 = create_via();
+    ay3_state *ay3_1 = create_ay3();
+    ay3_state *ay3_2 = create_ay3();
+
     multicore_launch_core1(board);
 
 #ifdef PICO_DEFAULT_LED_PIN
@@ -46,10 +57,49 @@ void main(void) {
     }
 
     printf("\n\nCopyright (c) 2022 Oliver Schmidt (https://a2retro.de/)\n\n");
+    printf("\n\nCopyright (c) 2024 Bobbi Webber-Manners a2pico-mockingboard proj\n\n");
 
     while (true) {
+
+#ifdef MOCKINGBOARD
+
+        uint32_t addr; // Address 0..0xFF
+        uint32_t rs;   // Register select 0..15
+        uint32_t data; // Databus
+        bool cs1;      // Chip select for VIA
+        bool rwb;      // True for write, false for read
+
+        if (multicore_fifo_rvalid()) {
+            // Data available from other core because 6502 has written to a register.
+            addr = multicore_fifo_pop_blocking();
+            data = multicore_fifo_pop_blocking();
+            cs1  = ((addr & 0x80) != 0); // A7 selects VIA1 or VIA2
+            rs   = addr & 0x0f;
+            rwb  = true;
+        } else {
+            // Nothing from other core. Do dummy read from reg 0.
+            addr = 0;
+            data = 0;
+            cs1  = false;
+            rs   = 0;
+            rwb  = false;
+        }
+
+        via_clk(via_1, cs1,  false, rwb, rs, data);
+        via_clk(via_2, !cs1, false, rwb, rs, data);
+        ay3_clk(ay3_1, via_1);
+        ay3_clk(ay3_2, via_2);
+
+        if (reset) {
+            // Reset VIAs and AYs
+            reset = false;
+        }
+
+#else
+
         if (stdio_usb_connected()) {
             if (multicore_fifo_rvalid()) {
+                // Data available from other core
                 putchar(multicore_fifo_pop_blocking());
             }
         }
@@ -60,6 +110,7 @@ void main(void) {
                 a2pico_irq(true);
             }
             else if (multicore_fifo_wready()) {
+                // Able to write to other core
                 multicore_fifo_push_blocking(data);
             } else {
                 putchar('\a');
@@ -70,6 +121,7 @@ void main(void) {
             reset = false;
             printf(" RESET ");
         }
+#endif
 
 #ifdef PICO_DEFAULT_LED_PIN
         gpio_put(PICO_DEFAULT_LED_PIN, active);

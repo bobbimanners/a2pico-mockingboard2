@@ -28,11 +28,6 @@ SOFTWARE.
 
 #include "board.h"
 
-#include "wdc6522.h"
-#include "ay-3-8913.h"
-
-#define MOCKINGBOARD
-
 extern const __attribute__((aligned(4))) uint8_t firmware[];
 
 volatile bool active;
@@ -49,12 +44,6 @@ static void __time_critical_func(handler)(bool asserted) {
 
 void __time_critical_func(board)(void) {
 
-    // Two 6522 VIAs and two General Instruments AY-3 sound chips
-    via_state *via_1 = create_via();
-    via_state *via_2 = create_via();
-    ay3_state *ay3_1 = create_ay3();
-    ay3_state *ay3_2 = create_ay3();
-
     a2pico_init(pio0);
 
     a2pico_resethandler(&handler);
@@ -66,28 +55,9 @@ void __time_critical_func(board)(void) {
         uint32_t strb = pico & 0x0800;  // IOSTRB
         uint32_t read = pico & 0x1000;  // R/W
 
-        uint32_t data = a2pico_getdata(pio0);
-
-#ifdef MOCKINGBOARD
-
-        // Mockingboard addressing
-        // A3..A0 are wired to RS3..RS0 to select VIA registers
-        // via_1: CS1 = A7
-        // via_2: CS1 = A7'
-        uint8_t rs = addr & 0x000F;
-        if (!io) { // DEVSEL
-            via_clk(via_1, (addr & 0x0080) != 0, false, !read, rs, data);
-            via_clk(via_2, (addr & 0x0080) == 0, false, !read, rs, data);
-        } else {
-            // Not selected but must clock them anyhow to advance timers
-            via_clk(via_1, false, false, !read, rs, data);
-            via_clk(via_2, false, false, !read, rs, data);
-        }
-        ay3_clk(ay3_1, via_1);
-        ay3_clk(ay3_2, via_2);
-
-#else
         if (read) {
+            // 6502 read from card. 16 registers are supported.
+            // Question ... how the heck is this supposed to work?
             if (!io) {  // DEVSEL
                 switch (addr & 0xF) {
                     case 0x0:
@@ -99,22 +69,14 @@ void __time_critical_func(board)(void) {
                         a2pico_putdata(pio0, sio_hw->fifo_st << 6);
                         break;
                 }
-            } else {
-                if (!strb || (active && (addr != 0x0FFF))) {
-                    a2pico_putdata(pio0, firmware[addr]);
-                }
             }
+
         } else {
+            // 6502 write to card. 16 registers are supported.
             uint32_t data = a2pico_getdata(pio0);
-            if (!io) {  // DEVSEL
-                switch (addr & 0xF) {
-                    case 0x0:
-                        sio_hw->fifo_wr = data;
-                        break;
-                    case 0x1:
-                        a2pico_irq(false);
-                        break;
-                }
+            if (!io) { // DEVSEL
+                sio_hw->fifo_wr = addr;
+                sio_hw->fifo_wr = data;
             }
         }
 
@@ -123,6 +85,5 @@ void __time_critical_func(board)(void) {
         } else if (addr == 0x0FFF) {
             active = false;
         }
-#endif        
     }
 }
