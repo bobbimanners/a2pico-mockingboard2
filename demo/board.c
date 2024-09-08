@@ -68,7 +68,6 @@ void __time_critical_func(board)(void) {
                     // VIA2
                     a2pico_putdata(pio0, registers2[addr & 0x0F]);
                 }
-                sio_hw->fifo_wr = 0; // Means READ
                 sio_hw->fifo_wr = addr;
                 sio_hw->fifo_wr = 0; // Dummy data
             }
@@ -76,16 +75,9 @@ void __time_critical_func(board)(void) {
             // 6502 write to card. 16 registers are supported.
             uint32_t data = a2pico_getdata(pio0);
             if (!io) { // DEVSEL
-                sio_hw->fifo_wr = 1; // Means WRITE
-                sio_hw->fifo_wr = addr;
+                sio_hw->fifo_wr = addr | 0x8000000; // Set MSbit to indicate WRITE
                 sio_hw->fifo_wr = data;
             }
-        }
-
-        if (io && !strb) {
-            active = true;
-        } else if (addr == 0x0FFF) {
-            active = false;
         }
     }
 }

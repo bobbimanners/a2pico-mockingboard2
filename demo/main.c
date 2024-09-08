@@ -86,13 +86,12 @@ void main(void) {
 
         if (multicore_fifo_rvalid()) {
             // 6502 has read from or written to a register.
-            write    = multicore_fifo_pop_blocking();
             addr     = multicore_fifo_pop_blocking();
             data     = multicore_fifo_pop_blocking();
             via1_sel = ((addr & 0x80) != 0); // A7 selects VIA1 or VIA2
             via2_sel = !via1_sel;
             rs       = addr & 0x0f;
-            rwb      = (write == 1);
+            rwb      = ((addr & 0x8000000) != 0); // MSbit set if write
         } else {
             // No reads or writes. Deselect both VIAs.
             via1_sel = via2_sel = false;
