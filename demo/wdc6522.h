@@ -48,7 +48,7 @@
 
 // State of VIA
 typedef struct {
-  volatile uint8_t regs;
+  volatile uint8_t regs[16];
 
   bool    cs1;    // Chip select 1 (CS1)
   bool    cs2b;   // Chip select 2 (CS2' active low)

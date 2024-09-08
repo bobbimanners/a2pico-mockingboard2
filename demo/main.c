@@ -42,10 +42,9 @@ SOFTWARE.
 
 void main(void) {
 
-    uint8_t audiobuf[BUFSZ];
+    uint16_t audiobuf[BUFSZ];
 
-    // TODO: Bluetooth expects 16 bit ints it seems.
-    set_shared_audio_buffer((unsigned char*)audiobuf);
+    set_shared_audio_buffer(audiobuf);
 
     via_state via_1, via_2;
     init_via(&via_1);

@@ -12,7 +12,7 @@
 static void via_set_register(via_state *h, unsigned int reg, uint8_t val);
 static uint8_t via_get_register(via_state *h, unsigned int reg);
 static void via_write_port(uint8_t direction, uint8_t reg, uint8_t *port);
-static void via_read_port(uint8_t direction, uint8_t *reg, uint8_t port);
+static void via_read_port(uint8_t direction, volatile uint8_t *reg, uint8_t port);
 static void via_timer1_expire(via_state *h);
 static void via_timer2_expire(via_state *h);
 static void via_interrupt();
@@ -148,7 +148,7 @@ static void via_write_port(uint8_t direction, uint8_t reg, uint8_t *port) {
 // Params: direction - direction register [IN]
 //         reg - pointer to register to update [OUT]
 //         port - output port [IN]
-static void via_read_port(uint8_t direction, uint8_t *reg, uint8_t port) {
+static void via_read_port(uint8_t direction, volatile uint8_t *reg, uint8_t port) {
   *reg = (port & ~direction) | (*reg & direction);
 }
 

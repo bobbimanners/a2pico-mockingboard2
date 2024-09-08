@@ -25,7 +25,7 @@ typedef struct {
   uint8_t selected; // Selected register
 
   // Output buffer
-  uint8_t *output;
+  uint16_t *output;
   unsigned int bufsize;
 
   // Write index into output buffers
@@ -60,7 +60,7 @@ typedef struct {
 //        buffer - pointer to output buffer
 //        sz     - size of buffer (must be even number of bytes)
 // Returns an AY3 handle
-void init_ay3(ay3_state *h, uint8_t *buffer, unsigned int sz);
+void init_ay3(ay3_state *h, uint16_t *buffer, unsigned int sz);
 
 // Called on every clock
 // Params: h     - AY3 handle

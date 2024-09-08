@@ -25,7 +25,7 @@ static void ay3_envelope_ampl(ay3_state *h);
 static void ay3_combine(ay3_state *h);
 
 
-void init_ay3(ay3_state *h, uint8_t *buffer, unsigned int sz) {
+void init_ay3(ay3_state *h, uint16_t *buffer, unsigned int sz) {
   h->output = buffer;
   h->bufsize = sz;
   for (unsigned int i = 0; i < 16; ++i) {
