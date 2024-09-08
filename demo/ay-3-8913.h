@@ -25,7 +25,8 @@ typedef struct {
   uint8_t selected; // Selected register
 
   // Output buffer
-  uint8_t output[AY3_SAMPLES];
+  uint8_t *output;
+  unsigned int bufsize;
 
   // Write index into output buffers
   unsigned int idx;
@@ -55,8 +56,10 @@ typedef struct {
 } ay3_state;
 
 // Create an instance of AY-3-8913
+// Param: buffer - pointer to output buffer
+//        sz - size of buffer (must be even number of bytes)
 // Returns an AY3 handle
-ay3_state *create_ay3();
+ay3_state *create_ay3(uint8_t *buffer, unsigned int sz);
 
 // Destroy an instance of AY-3-8913
 // Params: h - AY3 handle

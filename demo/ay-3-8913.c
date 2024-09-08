@@ -25,12 +25,14 @@ static void ay3_envelope_ampl(ay3_state *h);
 static void ay3_combine(ay3_state *h);
 
 
-ay3_state *create_ay3() {
+ay3_state *create_ay3(uint8_t *buffer, unsigned int sz) {
   ay3_state *h = malloc(sizeof(ay3_state));
   if (!h) {
     printf("Alloc fail!");
     exit(999);
   }
+  h->output = buffer;
+  h->bufsize = sz;
   for (unsigned int i = 0; i < 16; ++i) {
     h->regs[i] = 0;
   }
@@ -98,7 +100,7 @@ static void ay3_reset(ay3_state *h) {
   h->noise_state.period  = 31;
   h->noise_state.counter = 1;
   h->noise_state.signal  = 0;
-  memset(h->output, 0, AY3_SAMPLES);
+  memset(h->output, 0, h->bufsize);
   reset_envelope_generator(h);
 }
 
@@ -278,9 +280,18 @@ static void ay3_envelope_ampl(ay3_state *h) {
 }
 
 // Output the combined signal to output[], called every 1/16th clock
+// So: 1020500 / 16 = 63.78kHz
+//     If we drop every 4th sample, 63.78*3/4 = 47.86kHz
+//     which is only 0.34% error compared to 48kHz
 static void ay3_combine(ay3_state *h) {
-  h->output[h->idx++] = (h->mixed[0] + h->mixed[1] + h->mixed[2]) * 10;
-  if (h->idx >= AY3_SAMPLES) {
+  static unsigned int callcounter = 0;
+  if (++callcounter == 4) {
+    callcounter = 0;
+    return;
+  }
+  h->output[h->idx] = (h->mixed[0] + h->mixed[1] + h->mixed[2]) * 10;
+  h->idx += 2; // Two channels interleaved
+  if (h->idx >= h->bufsize * 2) {
     h->idx = 0;
   }
 }

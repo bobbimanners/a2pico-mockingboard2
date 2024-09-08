@@ -36,14 +36,20 @@ SOFTWARE.
 
 #define MOCKINGBOARD
 
+#define BUFSZ (4096 * 2)
+
 #include "board.h"
 
 void main(void) {
 
+    uint8_t audiobuf[BUFSZ];
+
+    set_shared_audio_buffer(audiobuf);
+
     via_state *via_1 = create_via(registers1);
     via_state *via_2 = create_via(registers2);
-    ay3_state *ay3_1 = create_ay3();
-    ay3_state *ay3_2 = create_ay3();
+    ay3_state *ay3_1 = create_ay3(audiobuf + 0, BUFSZ);
+    ay3_state *ay3_2 = create_ay3(audiobuf + 1, BUFSZ);
 
     multicore_launch_core1(board);
 
@@ -93,12 +99,8 @@ void main(void) {
         ay3_clk(ay3_1, via_1);
         ay3_clk(ay3_2, via_2);
 
-        // Enqueue a buffer of samples on Bluetooth every so many iterations
-        // TODO: ...
-        //set_shared_audio_buffer(int16_t *data);
-
         // Timer to achieve 1.0205 MHz overall
-        // TODO:
+        // TODO: Can we use the Bluetooth timer somehow to keep outselves at the correct speed?
         
         if (reset) {
             // Reset VIAs and AYs
