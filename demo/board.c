@@ -75,7 +75,7 @@ void __time_critical_func(board)(void) {
             // 6502 write to card. 16 registers are supported.
             uint32_t data = a2pico_getdata(pio0);
             if (!io) { // DEVSEL
-                sio_hw->fifo_wr = addr | 0x8000000; // Set MSbit to indicate WRITE
+                sio_hw->fifo_wr = addr | 0x80000000; // Set MSbit to indicate WRITE
                 sio_hw->fifo_wr = data;
             }
         }

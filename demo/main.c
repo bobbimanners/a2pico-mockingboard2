@@ -93,7 +93,7 @@ void main(void) {
             via1_sel = ((addr & 0x80) != 0); // A7 selects VIA1 or VIA2
             via2_sel = !via1_sel;
             rs       = addr & 0x0f;
-            rwb      = ((addr & 0x8000000) != 0); // MSbit set if write
+            rwb      = ((addr & 0x80000000) != 0); // MSbit set if write
         } else {
             // No reads or writes. Deselect both VIAs.
             via1_sel = via2_sel = false;
