@@ -18,22 +18,11 @@ static void via_timer2_expire(via_state *h);
 static void via_interrupt();
 
 
-via_state *create_via(volatile uint8_t *r) {
-  via_state *h = malloc(sizeof(via_state));
-  if (!h) {
-    printf("Alloc fail!");
-    exit(999);
-  }
-  h->regs = r;
+void init_via(via_state *h) {
   h->port_a = h->port_b = 0;
   h->regs[VIAREG_IER] = 128; // Disable all interrupts
   h->regs[VIAREG_IFR] = 0;   // Clear all interrupt flags
   h->regs[VIAREG_ACR] = 0;   // Clear Aux Control Register
-  return h;
-}
-
-void destroy_via(via_state *h) {
-  free(h);
 }
 
 void via_clk(via_state *h, bool cs1, bool rwb, uint8_t rs, uint8_t data) {

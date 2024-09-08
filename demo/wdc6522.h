@@ -48,7 +48,7 @@
 
 // State of VIA
 typedef struct {
-  volatile uint8_t *regs;
+  volatile uint8_t regs;
 
   bool    cs1;    // Chip select 1 (CS1)
   bool    cs2b;   // Chip select 2 (CS2' active low)
@@ -65,14 +65,9 @@ typedef struct {
   
 } via_state;
 
-// Create an instance of the VIA 6522
-// Param: r - Pointer to array of 16 registers
-// Returns VIA handle.
-via_state *create_via(volatile uint8_t *r);
-
-// Destroy an instance of the VIA 6522
-// Param: h - VIA handle
-void destroy_via(via_state *h);
+// Initialize the VIA 6522
+// Param: h    - VIA handle
+void init_via(via_state *h);
 
 // Called on every clock
 // Param: h    - VIA handle

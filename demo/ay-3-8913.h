@@ -56,18 +56,15 @@ typedef struct {
 } ay3_state;
 
 // Create an instance of AY-3-8913
-// Param: buffer - pointer to output buffer
-//        sz - size of buffer (must be even number of bytes)
+// Param: h      - AY3 handle
+//        buffer - pointer to output buffer
+//        sz     - size of buffer (must be even number of bytes)
 // Returns an AY3 handle
-ay3_state *create_ay3(uint8_t *buffer, unsigned int sz);
-
-// Destroy an instance of AY-3-8913
-// Params: h - AY3 handle
-void destroy_ay3(ay3_state *h);
+void init_ay3(ay3_state *h, uint8_t *buffer, unsigned int sz);
 
 // Called on every clock
-// Params: h - AY3 handle
-//         via - VIA handle of connected VIA
+// Params: h     - AY3 handle
+//         via   - VIA handle of connected VIA
 void ay3_clk(ay3_state *h, via_state *via);
 
 

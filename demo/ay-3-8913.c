@@ -25,12 +25,7 @@ static void ay3_envelope_ampl(ay3_state *h);
 static void ay3_combine(ay3_state *h);
 
 
-ay3_state *create_ay3(uint8_t *buffer, unsigned int sz) {
-  ay3_state *h = malloc(sizeof(ay3_state));
-  if (!h) {
-    printf("Alloc fail!");
-    exit(999);
-  }
+void init_ay3(ay3_state *h, uint8_t *buffer, unsigned int sz) {
   h->output = buffer;
   h->bufsize = sz;
   for (unsigned int i = 0; i < 16; ++i) {
@@ -38,11 +33,6 @@ ay3_state *create_ay3(uint8_t *buffer, unsigned int sz) {
   }
   srand(time(NULL));
   ay3_reset(h);
-  return h;
-}
-
-void destroy_ay3(ay3_state *h) {
-  free(h);
 }
 
 // Called every clock cycle

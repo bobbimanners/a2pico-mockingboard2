@@ -47,10 +47,13 @@ void main(void) {
     // TODO: Bluetooth expects 16 bit ints it seems.
     set_shared_audio_buffer((unsigned char*)audiobuf);
 
-    via_state *via_1 = create_via(registers1);
-    via_state *via_2 = create_via(registers2);
-    ay3_state *ay3_1 = create_ay3(audiobuf + 0, BUFSZ);
-    ay3_state *ay3_2 = create_ay3(audiobuf + 1, BUFSZ);
+    via_state via_1, via_2;
+    init_via(&via_1);
+    init_via(&via_2);
+
+    ay3_state ay3_1, ay3_2;
+    init_ay3(&ay3_1, audiobuf + 0, BUFSZ);
+    init_ay3(&ay3_2, audiobuf + 1, BUFSZ);
 
     multicore_launch_core1(board);
 
@@ -97,10 +100,10 @@ void main(void) {
             via1_sel = via2_sel = false;
         }
 
-        via_clk(via_1, via1_sel, rwb, rs, data);
-        via_clk(via_2, via2_sel, rwb, rs, data);
-        ay3_clk(ay3_1, via_1);
-        ay3_clk(ay3_2, via_2);
+        via_clk(&via_1, via1_sel, rwb, rs, data);
+        via_clk(&via_2, via2_sel, rwb, rs, data);
+        ay3_clk(&ay3_1, &via_1);
+        ay3_clk(&ay3_2, &via_2);
 
         // Timer to achieve 1.0000 MHz overall
         t = delayed_by_us(t, 1);
