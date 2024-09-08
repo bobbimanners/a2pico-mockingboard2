@@ -44,7 +44,8 @@ void main(void) {
 
     uint8_t audiobuf[BUFSZ];
 
-    set_shared_audio_buffer(audiobuf);
+    // TODO: Bluetooth expects 16 bit ints it seems.
+    set_shared_audio_buffer((unsigned char*)audiobuf);
 
     via_state *via_1 = create_via(registers1);
     via_state *via_2 = create_via(registers2);
@@ -67,6 +68,9 @@ void main(void) {
 
     printf("\n\nCopyright (c) 2022 Oliver Schmidt (https://a2retro.de/)\n\n");
     printf("\n\nCopyright (c) 2024 Bobbi Webber-Manners a2pico-mockingboard proj\n\n");
+
+    // Start time
+    absolute_time_t t = get_absolute_time();
 
     while (true) {
 
@@ -99,8 +103,9 @@ void main(void) {
         ay3_clk(ay3_1, via_1);
         ay3_clk(ay3_2, via_2);
 
-        // Timer to achieve 1.0205 MHz overall
-        // TODO: Can we use the Bluetooth timer somehow to keep outselves at the correct speed?
+        // Timer to achieve 1.0000 MHz overall
+        t = delayed_by_us(t, 1);
+        sleep_until(t);
         
         if (reset) {
             // Reset VIAs and AYs
