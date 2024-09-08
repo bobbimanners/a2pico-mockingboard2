@@ -18,7 +18,7 @@ static void via_timer2_expire(via_state *h);
 static void via_interrupt();
 
 
-via_state *create_via(uint8_t *r) {
+via_state *create_via(volatile uint8_t *r) {
   via_state *h = malloc(sizeof(via_state));
   if (!h) {
     printf("Alloc fail!");

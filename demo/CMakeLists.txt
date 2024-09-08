@@ -24,6 +24,7 @@ set(PROJECT_NAME demo)
 
 cmake_minimum_required(VERSION 3.12)
 include(pico_sdk_import.cmake)
+
 project(${PROJECT_NAME} C CXX ASM)
 pico_sdk_init()
 
@@ -51,11 +52,23 @@ target_sources(${PROJECT_NAME} PRIVATE
         board.c
         wdc6522.c
         ay-3-8913.c
+        btstack/bt_audio.c
         incbin.S
         )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         pico_stdlib
+        pico_btstack_ble
+        pico_btstack_classic
+#        pico_btstack_cyw43
+#        pico_cyw43_arch_threadsafe_background
+        pico_btstack_sbc_encoder        
         pico_multicore
         a2pico
         )
+
+# Including header files directly from project directory
+target_include_directories(${PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}
+)
+

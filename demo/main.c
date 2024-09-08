@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include "ay-3-8913.h"
 #include "wdc6522.h"
+#include "btstack/bt_audio.h"
 
 #define MOCKINGBOARD
 
@@ -45,6 +46,8 @@ void main(void) {
     ay3_state *ay3_2 = create_ay3();
 
     multicore_launch_core1(board);
+
+    btstack_main(0, NULL);
 
 #ifdef PICO_DEFAULT_LED_PIN
     gpio_init(PICO_DEFAULT_LED_PIN);
@@ -92,6 +95,7 @@ void main(void) {
 
         // Enqueue a buffer of samples on Bluetooth every so many iterations
         // TODO: ...
+        //set_shared_audio_buffer(int16_t *data);
 
         // Timer to achieve 1.0205 MHz overall
         // TODO:
